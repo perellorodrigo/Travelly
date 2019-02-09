@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Travelly</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_home">Trips</string>
+    <string name="title_vehicle">Vehicle</string>
+    <string name="title_account">Account</string>
+    <string name="title_addTrip">Add Trip</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="refresh">Refresh</string>
+</resources>

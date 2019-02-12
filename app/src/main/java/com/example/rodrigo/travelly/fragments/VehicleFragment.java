@@ -1,6 +1,8 @@
 package com.example.rodrigo.travelly.fragments;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -32,6 +34,7 @@ public class VehicleFragment extends Fragment {
     ArrayList<Vehicle> vehicles;
     EditText vehicleName;
     EditText fuelConsumption;
+    Vehicle selectedVehicle;
     private DatabaseHelper databaseHelper;
 
     public VehicleFragment() {
@@ -57,13 +60,11 @@ public class VehicleFragment extends Fragment {
         list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Vehicle vehicle = adapter.getItem(position);
-                if (databaseHelper.deleteVehicleByID(vehicle.getId()))
-                    Toast.makeText(getContext(),"Deleted", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(getContext(),"Didn't deleted", Toast.LENGTH_SHORT).show();
-                adapter.notifyDataSetChanged();
-
+                selectedVehicle = adapter.getItem(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage("Would you like to delete this vehicle?")
+                        .setPositiveButton("Yes",dialogClickListener)
+                        .setNegativeButton("No",dialogClickListener).show();
                 return false;
             }
         });
@@ -74,17 +75,35 @@ public class VehicleFragment extends Fragment {
             Vehicle newVehicle = databaseHelper.addVehicle(new Vehicle(
                                                                 vehicleName.getText().toString(),
                                                                 Float.parseFloat(fuelConsumption.getText().toString())),
-                                                            AppData.loggedUserID);
+                                                            AppData.loggedUser.getId());
                 if (newVehicle != null){
                     Toast.makeText(getContext(),"Successfully added " + vehicleName.getText().toString(),Toast.LENGTH_SHORT).show();
                     adapter.notifyDataSetChanged();
                 }
                 else
-                    Toast.makeText(getContext(),"Couldn't add " + vehicleName.getText().toString(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),"Couldn't add new Vehicle" + vehicleName.getText().toString(),Toast.LENGTH_SHORT).show();
             }
         });
 
         return view;
     }
+    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    if (databaseHelper.deleteVehicleByID(selectedVehicle.getId()))
+                        Toast.makeText(getContext(),"Deleted", Toast.LENGTH_SHORT).show();
+                    else
+                        Toast.makeText(getContext(),"Please delete the trips associated with this vehicle", Toast.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
+                    break;
+                case DialogInterface.BUTTON_NEGATIVE:
+                    break;
+            }
+        }
+    };
+
+
 
 }

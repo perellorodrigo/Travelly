@@ -1,7 +1,10 @@
 package com.example.rodrigo.travelly.models;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -13,14 +16,17 @@ public class Trip implements Parcelable {
     private LatLng originPosition;
     private LatLng destinationPosition;
     private ArrayList<Waypoint> waypoints;
-    //new:
     private ArrayList<Expense> expenses;
     private ArrayList<Reminder> reminders;
-
-
+    private String imgPath;
 
 
     public Trip(String name, Date startDate, Vehicle vehicle, LatLng originPosition, LatLng destinationPosition) {
+        // Overloading of constructor, if image path not specified, it will call as empty String
+        this(name, startDate, vehicle, originPosition, destinationPosition, "");
+    }
+
+    public Trip(String name, Date startDate, Vehicle vehicle, LatLng originPosition, LatLng destinationPosition,String imgPath) {
         this.name = name;
         this.startDate = startDate;
         this.vehicle = vehicle;
@@ -29,30 +35,42 @@ public class Trip implements Parcelable {
         this.waypoints = new ArrayList<>();
         this.expenses = new ArrayList<>();
         this.reminders = new ArrayList<>();
-
+        this.imgPath = imgPath;
     }
 
     public Trip(){
         this.waypoints = new ArrayList<>();
         this.expenses = new ArrayList<>();
         this.reminders = new ArrayList<>();
+        this.imgPath = "";
     }
 
     public com.google.maps.model.LatLng[] getWaypointsForDirections(){
-        //ArrayList<com.google.maps.model.LatLng> formattedWaypoints = new ArrayList<>();
+        // Function used to convert the waypoints to the appropriate structure to be used as waypoints in the directions API
+        //Returns an array of objects of LatLng
         com.google.maps.model.LatLng[] formattedWaypoints = new com.google.maps.model.LatLng[waypoints.size()];
 
         int index = 0;
         for (Waypoint wp :
-             waypoints) {
+                waypoints) {
             com.google.maps.model.LatLng fwp = new com.google.maps.model.LatLng(wp.getPosition().latitude,wp.getPosition().longitude);
-            formattedWaypoints[index] =  fwp;//.add(fwp);
+            formattedWaypoints[index] =  fwp;
             index++;
         };
 
         return formattedWaypoints;
 
-    };
+    }
+
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
+    }
+
+
 
     protected Trip(Parcel in) {
         id = in.readInt();
@@ -63,8 +81,8 @@ public class Trip implements Parcelable {
         waypoints = in.createTypedArrayList(Waypoint.CREATOR);
         reminders = in.createTypedArrayList(Reminder.CREATOR);
         expenses = in.createTypedArrayList(Expense.CREATOR);
-
         startDate = new Date(in.readLong());
+        imgPath = in.readString();
     }
 
     public static final Creator<Trip> CREATOR = new Creator<Trip>() {
@@ -159,5 +177,6 @@ public class Trip implements Parcelable {
         dest.writeTypedList(reminders);
         dest.writeTypedList(expenses);
         dest.writeLong(startDate.getTime());
+        dest.writeString(imgPath);
     }
 }

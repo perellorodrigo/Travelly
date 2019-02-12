@@ -8,7 +8,6 @@ public class User implements Serializable {
     private String email;
     private String password;
     private String name;
-    private  String hometown;
     private ArrayList<Trip> trips;
     private ArrayList<Vehicle> vehicles;
 
@@ -38,14 +37,6 @@ public class User implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getHometown() {
-        return hometown;
-    }
-
-    public void setHometown(String hometown) {
-        this.hometown = hometown;
     }
 
     public String getEmail() {

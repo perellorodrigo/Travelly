@@ -179,7 +179,7 @@
             app:cardElevation="8dp"
             app:cardCornerRadius="8dp"
             android:id="@+id/notesCard"
-            android:onClick="OpenNotes"
+            android:onClick="OpenReminder"
             >
             <LinearLayout
                 android:layout_width="wrap_content"

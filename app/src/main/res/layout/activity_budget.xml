@@ -1,57 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     tools:context=".activities.BudgetActivity"
-    android:orientation="vertical">
+
+    >
 
 
     <TextView
-        android:layout_width="match_parent"
-        android:padding="5dp"
-        android:layout_height="wrap_content"
-        android:text="Expenses herew"
         android:id="@+id/totalExpensesTextView"
-        android:textSize="20sp"
-        android:textAlignment="center"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Total Expenses Here"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/addedExpensesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Added Expenses Here"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/estimatedFuelExpensesTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="Estimated Fuel Expenses"
+        android:textAlignment="center"
+        android:textSize="20sp" />
 
 
     <EditText
+        android:id="@+id/expenseDescriptionInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Description"
-        android:id="@+id/expenseDescriptionInput"
         android:inputType="textShortMessage"
-        android:padding="15dp"/>
+        android:padding="15dp" />
+
     <EditText
+        android:id="@+id/expenseAmountInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Amount"
         android:inputType="numberDecimal"
-        android:id="@+id/expenseAmountInput"
-        android:padding="15dp"/>
+        android:padding="15dp" />
+
     <EditText
+        android:id="@+id/expenseDateInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/expenseDateInput"
         android:clickable="true"
         android:focusable="false"
-        android:inputType="none"
         android:hint="Expected Date"
-        android:padding="15dp"/>
+        android:inputType="none"
+        android:padding="15dp" />
 
     <Button
+        android:id="@+id/addExpenseButton"
+        style="@style/Widget.AppCompat.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Expense"
-        android:id="@+id/addExpenseButton"
-        android:onClick="AddNewExpense"/>
+        android:onClick="AddNewExpense"
+        android:text="Add New Expense" />
 
     <ListView
+        android:id="@+id/expensesListView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/expensesListView">
+        android:layout_height="match_parent">
 
     </ListView>
 

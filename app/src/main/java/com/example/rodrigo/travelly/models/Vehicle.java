@@ -3,8 +3,6 @@ package com.example.rodrigo.travelly.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-
 public class Vehicle implements Parcelable{
     private int id;
     private String vehicleName;

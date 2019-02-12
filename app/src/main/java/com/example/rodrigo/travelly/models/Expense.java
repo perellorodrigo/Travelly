@@ -2,16 +2,19 @@ package com.example.rodrigo.travelly.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import java.util.Date;
 
-public class Expense implements Parcelable {
+public class Expense implements Parcelable, Comparable<Expense>{
+    //Expense class
+    // Implements parcelable to be used in intents
     private int id;
     private String description;
     private float amount;
     private Date date;
 
-
+    //Constructor
     public Expense(String description, float amount, Date date) {
         this.description = description;
         this.amount = amount;
@@ -80,5 +83,10 @@ public class Expense implements Parcelable {
         dest.writeFloat(amount);
         dest.writeString(description);
         dest.writeLong(date.getTime());
+    }
+
+    @Override
+    public int compareTo(@NonNull Expense o) {
+        return getDate().compareTo(o.getDate());
     }
 }

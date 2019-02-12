@@ -5,7 +5,6 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.Serializable;
 import java.util.Date;
 
 public class Waypoint implements Parcelable {
@@ -13,16 +12,15 @@ public class Waypoint implements Parcelable {
     private String description;
     private Date expectedDate;
     private LatLng position;
+    private int order;
 
 
-    public Waypoint(){
-    //Empty constructor, useful for database creation
-    }
 
     public Waypoint(String description, Date expectedDate, LatLng position) {
         this.description = description;
         this.expectedDate = expectedDate;
         this.position = position;
+        this.order = -1; // Set -1 to order
     }
 
     protected Waypoint(Parcel in) {
@@ -30,6 +28,7 @@ public class Waypoint implements Parcelable {
         description = in.readString();
         position = in.readParcelable(LatLng.class.getClassLoader());
         expectedDate = new Date(in.readLong());
+        order = in.readInt();
     }
 
     public static final Creator<Waypoint> CREATOR = new Creator<Waypoint>() {
@@ -43,6 +42,14 @@ public class Waypoint implements Parcelable {
             return new Waypoint[size];
         }
     };
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
     public int getId() {
         return id;
@@ -87,5 +94,6 @@ public class Waypoint implements Parcelable {
         dest.writeString(description);
         dest.writeParcelable(position, flags);
         dest.writeLong(expectedDate.getTime());
+        dest.writeInt(order);
     }
 }

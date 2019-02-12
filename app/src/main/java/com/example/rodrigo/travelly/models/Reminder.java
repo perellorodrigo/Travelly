@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Reminder implements Parcelable {
+
     private int id;
     private String title;
     private String description;

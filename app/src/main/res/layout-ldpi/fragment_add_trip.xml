@@ -14,59 +14,63 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-    <EditText
-        android:id="@+id/tripName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Trip Name"
-        android:padding="10dp"
-        />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/tripStartDate"
-        android:clickable="true"
-        android:focusable="false"
-        android:inputType="none"
-        android:hint="Start Date"
-        android:padding="10dp"/>
+            <EditText
+                android:id="@+id/tripName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Trip Name"
+                android:padding="10dp"
+                />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tripStartDate"
+                android:clickable="true"
+                android:focusable="false"
+                android:inputType="none"
+                android:hint="Start Date"
+                android:padding="10dp"/>
 
-    <Spinner
-        android:id="@+id/tripVehicleDropdown"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Base.Widget.AppCompat.DropDownItem.Spinner"
-        android:spinnerMode="dropdown"
-        ></Spinner>
-
-
-        <Button
-            android:id="@+id/setOriginButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Origin"/>
-        <TextView
-            android:id="@+id/originLocationText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-        <Button
-            android:id="@+id/setDestinationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Set Destination"/>
-        <TextView
-            android:id="@+id/destinationLocationText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/addTripButton"
-            android:text="Add New Trip"
-            android:padding="20dp"/>
+            <Spinner
+                android:id="@+id/tripVehicleDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/Base.Widget.AppCompat.DropDownItem.Spinner"
+                android:spinnerMode="dropdown"
+                ></Spinner>
+            <TextView
+                    android:id="@+id/destinationLocationText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
+            <fragment
+                    android:id="@+id/autocomplete_fragment_origin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:name=
+                        "com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    />
+            <fragment
+                    android:id="@+id/autocomplete_fragment_destination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:name=
+                        "com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    />
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Trip Image:"/>
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/imageView"/>
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/addTripButton"
+                    android:text="Add New Trip"
+                    android:padding="20dp"/>
         </LinearLayout>
     </ScrollView>
-
 </FrameLayout>

@@ -19,18 +19,25 @@ public class ExpenseAdapter extends ArrayAdapter<Expense> {
         super(context, R.layout.expense_row_layout,expenses);
     }
 
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Expense expense = getItem(position);
         LayoutInflater inflater = LayoutInflater.from(getContext());
+        // Inflate the view
         View view = inflater.inflate(R.layout.expense_row_layout,parent,false);
 
-        TextView expenseDescription = (TextView) view.findViewById(R.id.expenseDescription);
-        TextView expenseAmount = (TextView) view.findViewById(R.id.expenseAmount);
+        //Link layout elements
+        TextView expenseDate = view.findViewById(R.id.expenseDate);
+        TextView expenseDescription = view.findViewById(R.id.expenseDescription);
+        TextView expenseAmount = view.findViewById(R.id.expenseAmount);
+        //------
 
+        //Set expense details
+        expenseDate.setText(android.text.format.DateFormat.format("dd/MM",expense.getDate()));
         expenseDescription.setText(expense.getDescription());
-        expenseAmount.setText(Float.toString(expense.getAmount()));
+        expenseAmount.setText(String.format("$%.2f",expense.getAmount()));
 
         return view;
     }

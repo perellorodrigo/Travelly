@@ -18,14 +18,11 @@ import com.example.rodrigo.travelly.models.Waypoint;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 15;
 
     //DATABASE NAME
     private static final String DATABASE_NAME = "TravellyDatabase.db";
@@ -41,15 +38,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String USER_COLUMN_EMAIL = "email";
     private static final String USER_COLUMN_PASSWORD = "password";
     private static final String USER_COLUMN_NAME = "name";
-    private static final String USER_COLUMN_HOMETOWN = "hometown";
 
     // CREATE USER TABLE:
     private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + "("
             + USER_COLUMN_USER_ID   + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + USER_COLUMN_EMAIL     + " TEXT,"
             + USER_COLUMN_PASSWORD  + " TEXT,"
-            + USER_COLUMN_NAME      + " TEXT,"
-            + USER_COLUMN_HOMETOWN  + " TEXT" + ")";
+            + USER_COLUMN_NAME      + " TEXT" + ")";
 
     // DROP USER TABLE:
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
@@ -91,6 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TRIP_COLUMN_ORIGIN_LNG = "origin_lng";
     private static final String TRIP_COLUMN_DESTINATION_LAT = "destination_lat";
     private static final String TRIP_COLUMN_DESTINATION_LNG = "destination_lng";
+    private static final String TRIP_COLUMN_IMG_PATH = "img_path";
     private static final String TRIP_COLUMN_VEHICLE_ID = "vehicle_id";
     private static final String TRIP_COLUMN_USER_ID = "user_id";
 
@@ -103,6 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TRIP_COLUMN_ORIGIN_LNG       + " REAL,"
             + TRIP_COLUMN_DESTINATION_LAT  + " REAL,"
             + TRIP_COLUMN_DESTINATION_LNG  + " REAL,"
+            + TRIP_COLUMN_IMG_PATH         + " TEXT,"
             + TRIP_COLUMN_VEHICLE_ID       + " INTEGER,"
             + TRIP_COLUMN_USER_ID          + " INTEGER,"
             + " FOREIGN KEY (" + TRIP_COLUMN_VEHICLE_ID + ") REFERENCES " + TABLE_VEHICLE + " ("+ VEHICLE_COLUMN_VEHICLE_ID  + "),"
@@ -137,10 +134,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private String DROP_WAYPOINT_TABLE = "DROP TABLE IF EXISTS " + TABLE_WAYPOINT;
 
     //--------------------------------------------------------------------
-    // WAYPOINTS TABLE DEFINITIONS
+    // EXPENSES TABLE DEFINITIONS
     private static final String TABLE_EXPENSE = "expenses";
 
-    // WAYPOINTS TABLE COLUMN NAMES
+    // EXPENSES TABLE COLUMN NAMES
     private static final String EXPENSE_COLUMN_EXPENSE_ID = "expense_id";
     private static final String EXPENSE_COLUMN_DESCRIPTION = "description";
     private static final String EXPENSE_COLUMN_AMOUNT = "amount";
@@ -148,7 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String EXPENSE_COLUMN_TRIP_ID = "trip_id";
 
 
-    // CREATE WAYPOINTS TABLE
+    // CREATE EXPENSES TABLE
     private String CREATE_EXPENSE_TABLE = "CREATE TABLE " + TABLE_EXPENSE + "("
             + EXPENSE_COLUMN_EXPENSE_ID            + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + EXPENSE_COLUMN_DESCRIPTION   + " TEXT,"
@@ -157,7 +154,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + EXPENSE_COLUMN_TRIP_ID               + " INTEGER,"
             + " FOREIGN KEY (" + EXPENSE_COLUMN_TRIP_ID + ") REFERENCES " + TABLE_TRIP + " ("+ TRIP_COLUMN_TRIP_ID  + "))";
 
-    // DROP WAYPOINTS TABLE
+    // DROP EXPENSES TABLE
     private String DROP_EXPENSE_TABLE = "DROP TABLE IF EXISTS " + TABLE_EXPENSE;
 
 
@@ -185,11 +182,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     //---------------------------------------------------------------------
-    private SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onConfigure(SQLiteDatabase db) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            db.setForeignKeyConstraintsEnabled(true);
+        }
     }
 
     @Override
@@ -200,6 +203,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_WAYPOINT_TABLE);
         db.execSQL(CREATE_EXPENSE_TABLE);
         db.execSQL(CREATE_REMINDER_TABLE);
+
     }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -218,7 +222,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(USER_COLUMN_EMAIL,user.getEmail());
         values.put(USER_COLUMN_PASSWORD, user.getPassword());
         values.put(USER_COLUMN_NAME, user.getName());
-        values.put(USER_COLUMN_HOMETOWN, user.getHometown());
 
         int rowID = (int) db.insert(TABLE_USER,null,values);
         db.close();
@@ -239,8 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 USER_COLUMN_USER_ID,
                 USER_COLUMN_EMAIL,
                 USER_COLUMN_PASSWORD,
-                USER_COLUMN_NAME,
-                USER_COLUMN_HOMETOWN
+                USER_COLUMN_NAME
         };
 
 
@@ -265,44 +267,51 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             user.setEmail(cursor.getString(cursor.getColumnIndex(USER_COLUMN_EMAIL)));
             user.setPassword(cursor.getString(cursor.getColumnIndex(USER_COLUMN_PASSWORD)));
             user.setName(cursor.getString(cursor.getColumnIndex(USER_COLUMN_NAME)));
-            user.setHometown(cursor.getString(cursor.getColumnIndex(USER_COLUMN_HOMETOWN)));
         }
         cursor.close();
         db.close();
 
         return user;
     }
-    public List<User> getAllUsers(){
+
+    public User getUserByID(int userID){
+        SQLiteDatabase db = this.getReadableDatabase();
+
         String[] columns = {
                 USER_COLUMN_USER_ID,
                 USER_COLUMN_EMAIL,
                 USER_COLUMN_PASSWORD,
-                USER_COLUMN_NAME,
-                USER_COLUMN_HOMETOWN
+                USER_COLUMN_NAME
         };
 
-        String sortOrder = USER_COLUMN_NAME + " ASC";
-        List<User> userList = new ArrayList<User>();
-        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = USER_COLUMN_USER_ID + " = ?";
 
-        Cursor cursor = db.query(TABLE_USER,columns,null,null,null,null,sortOrder);
+        String[] selectionArgs = {Integer.toString(userID)};
+
+        Cursor cursor = db.query(TABLE_USER,
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null);
+
+        User user = null;
+
 
         if(cursor.moveToFirst()){
-            do{
-                User user = new User();
-                user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(USER_COLUMN_USER_ID))));
-                user.setEmail(cursor.getString(cursor.getColumnIndex(USER_COLUMN_EMAIL)));
-                user.setPassword(cursor.getString(cursor.getColumnIndex(USER_COLUMN_PASSWORD)));
-                user.setName(cursor.getString(cursor.getColumnIndex(USER_COLUMN_NAME)));
-                user.setHometown(cursor.getString(cursor.getColumnIndex(USER_COLUMN_HOMETOWN)));
-                userList.add(user);
-            }while(cursor.moveToNext());
+            user = new User();
+            user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(USER_COLUMN_USER_ID))));
+            user.setEmail(cursor.getString(cursor.getColumnIndex(USER_COLUMN_EMAIL)));
+            user.setPassword(cursor.getString(cursor.getColumnIndex(USER_COLUMN_PASSWORD)));
+            user.setName(cursor.getString(cursor.getColumnIndex(USER_COLUMN_NAME)));
         }
         cursor.close();
         db.close();
 
-        return userList;
+        return user;
     }
+
     public boolean checkUser(String email){
         String[] columns = {USER_COLUMN_USER_ID};
 
@@ -359,11 +368,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values.put(TRIP_COLUMN_NAME,trip.getName());
 
-        values.put(TRIP_COLUMN_START_DATE, dateFormat.format(trip.getStartDate()));
+        values.put(TRIP_COLUMN_START_DATE,AppData.dateFormat.format(trip.getStartDate()));
         values.put(TRIP_COLUMN_ORIGIN_LAT,trip.getOriginPosition().latitude);
         values.put(TRIP_COLUMN_ORIGIN_LNG,trip.getOriginPosition().longitude);
         values.put(TRIP_COLUMN_DESTINATION_LAT,trip.getDestinationPosition().latitude);
         values.put(TRIP_COLUMN_DESTINATION_LNG,trip.getDestinationPosition().longitude);
+        values.put(TRIP_COLUMN_IMG_PATH,trip.getImgPath());
         values.put(TRIP_COLUMN_VEHICLE_ID, trip.getVehicle().getId());
         values.put(TRIP_COLUMN_USER_ID, userID);
 
@@ -393,12 +403,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 TRIP_COLUMN_ORIGIN_LNG,
                 TRIP_COLUMN_DESTINATION_LAT,
                 TRIP_COLUMN_DESTINATION_LNG,
+                TRIP_COLUMN_IMG_PATH,
                 TRIP_COLUMN_VEHICLE_ID,
                 TRIP_COLUMN_USER_ID
         };
 
         String sortOrder = TRIP_COLUMN_NAME + " ASC";
-        ArrayList<Trip> tripList = new ArrayList<Trip>();
+        ArrayList<Trip> tripList = new ArrayList<>();
         String selection = TRIP_COLUMN_USER_ID + " = ?";
 
         String[] selectionArgs = {Integer.toString(userID)};
@@ -413,7 +424,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 trip.setName(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_NAME)));
 
                 try {
-                    trip.setStartDate(dateFormat.parse(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_START_DATE))));
+                    trip.setStartDate(AppData.dateFormat.parse(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_START_DATE))));
                 }catch (ParseException ex)
                 {
                     Log.d("PARSE_EX","Error parsing: " + ex);
@@ -430,18 +441,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         Double.parseDouble(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_DESTINATION_LNG)))
                 );
 
+
+                trip.setImgPath(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_IMG_PATH)));
                 trip.setOriginPosition(origin);
                 trip.setDestinationPosition(destination);
 
-                //TODO Add vehicle
+
                 int vehicleID = Integer.parseInt(cursor.getString(cursor.getColumnIndex(TRIP_COLUMN_VEHICLE_ID)));
                 trip.setVehicle(getVehicleByID(vehicleID));
+
 
                 trip.setWaypoints(getWaypointsByTripID(tripID));
                 tripList.add(trip);
             }while(cursor.moveToNext());
-
-
         }
         cursor.close();
 
@@ -517,13 +529,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean deleteVehicleByID(final int vehicleID){
         SQLiteDatabase db = this.getWritableDatabase();
 
-        boolean inserted = db.delete(TABLE_VEHICLE,VEHICLE_COLUMN_VEHICLE_ID + "=" + vehicleID,null) > 0;
+        boolean deleted;
+        try {
+            deleted = db.delete(TABLE_VEHICLE, VEHICLE_COLUMN_VEHICLE_ID + "=" + vehicleID, null) > 0;
+        }catch (Exception ex)
+        {
+            deleted = false;
+        }
         db.close();
 
-        if(inserted)
+        if(deleted)
             AppData.loggedUserVehicles.removeIf(s -> s.getId() == vehicleID);
 
-        return inserted;
+        return deleted;
 
     }
     public ArrayList<Vehicle> getVehiclesByUserID(int userID){
@@ -552,10 +570,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 );
 
         Vehicle vehicle = null;
-        ArrayList<Vehicle> vehicles = null;
+        ArrayList<Vehicle> vehicles = new ArrayList<>();
 
         if(cursor.moveToFirst()){
-            vehicles = new ArrayList<>();
             do {
 
                 vehicle = new Vehicle(
@@ -579,7 +596,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(WAYPOINT_COLUMN_DESCRIPTION, waypoint.getDescription());
-        values.put(WAYPOINT_COLUMN_EXPECTED_DATE, dateFormat.format(waypoint.getExpectedDate()));
+        values.put(WAYPOINT_COLUMN_EXPECTED_DATE, AppData.dateFormat.format(waypoint.getExpectedDate()));
         values.put(WAYPOINT_COLUMN_LAT, waypoint.getPosition().latitude);
         values.put(WAYPOINT_COLUMN_LNG, waypoint.getPosition().longitude);
         values.put(WAYPOINT_COLUMN_TRIP_ID, tripID);
@@ -589,11 +606,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (rowID != -1) {
             waypoint.setId(rowID);
-            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUserID);
+            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUser.getId());
         }
-        else{
-            waypoint = null;
-        }
+        else waypoint = null;
 
         return waypoint;
     }
@@ -624,18 +639,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null
         );
 
-        Waypoint waypoint = null;
-        ArrayList<Waypoint> waypoints = null;
+        ArrayList<Waypoint> waypoints = new ArrayList<>();
 
         if(cursor.moveToFirst()){
-            waypoints = new ArrayList<>();
+            Waypoint waypoint = null;
             do {
                 Date expectedDate;
                 try {
-                    expectedDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(WAYPOINT_COLUMN_EXPECTED_DATE)));
+                    expectedDate = AppData.dateFormat.parse(cursor.getString(cursor.getColumnIndex(WAYPOINT_COLUMN_EXPECTED_DATE)));
                 } catch (ParseException ex)
                 {
-                    Log.d("PARSE_EX","Error parsing: " + ex);
+                    //Uses fake data
                     expectedDate = new Date(2000,1,1);
                 }
 
@@ -668,7 +682,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         values.put(EXPENSE_COLUMN_DESCRIPTION, expense.getDescription());
         values.put(EXPENSE_COLUMN_AMOUNT, expense.getAmount());
-        values.put(EXPENSE_COLUMN_DATE, dateFormat.format(expense.getDate()));
+        values.put(EXPENSE_COLUMN_DATE, AppData.dateFormat.format(expense.getDate()));
         values.put(EXPENSE_COLUMN_TRIP_ID, tripID);
 
         int rowID = (int) db.insert(TABLE_EXPENSE,null,values);
@@ -677,7 +691,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (rowID != -1) {
             expense.setId(rowID);
             //Refresh the app data trips as a new expense has been added
-            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUserID);
+            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUser.getId());
         }
         else{
             expense = null;
@@ -710,15 +724,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 null
         );
 
-        Expense expense = null;
-        ArrayList<Expense> expenses = null;
+        ArrayList<Expense> expenses = new ArrayList<>();
 
         if(cursor.moveToFirst()){
-            expenses = new ArrayList<>();
+            Expense expense = null;
             do {
                 Date expenseDate;
                 try {
-                    expenseDate = dateFormat.parse(cursor.getString(cursor.getColumnIndex(EXPENSE_COLUMN_DATE)));
+                    expenseDate = AppData.dateFormat.parse(cursor.getString(cursor.getColumnIndex(EXPENSE_COLUMN_DATE)));
                 } catch (ParseException ex)
                 {
                     Log.d("PARSE_EX","Error parsing: " + ex);
@@ -756,7 +769,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (rowID != -1) {
             reminder.setId(rowID);
             //Refresh the app data trips as a new expense has been added
-            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUserID);
+            AppData.loggedUserTrips = getTripsByUser(AppData.loggedUser.getId());
         }
         else{
             reminder = null;
@@ -791,10 +804,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
 
         Reminder reminder = null;
-        ArrayList<Reminder> reminders = null;
+        ArrayList<Reminder> reminders = new ArrayList<>();
 
         if(cursor.moveToFirst()){
-            reminders = new ArrayList<>();
             do {
 
 

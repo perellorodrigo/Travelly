@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.example.rodrigo.travelly"
         minSdkVersion 15
         targetSdkVersion 28
@@ -32,9 +33,13 @@ dependencies {
     implementation 'com.android.support:support-vector-drawable:28.0.0'
     implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
-    implementation 'com.google.android.gms:play-services-places:16.0.0'
+
     implementation 'com.google.maps:google-maps-services:0.9.1'
     implementation 'com.google.maps.android:android-maps-utils:0.5'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.android.libraries.places:places:1.0.0'
+
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
